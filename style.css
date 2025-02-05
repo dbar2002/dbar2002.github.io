@@ -120,7 +120,9 @@ nav {
 h1 {
     font-size: 3.5em;
     background: linear-gradient(45deg, cyan, blue, purple);
-    -webkit-background-clip: text;
+    background-clip: text; /* Standard property */
+    -webkit-background-clip: text; /* Webkit-specific */
+    -moz-background-clip: text; /* Mozilla-specific */
     color: transparent;
     font-weight: 700;
 }
@@ -201,6 +203,7 @@ section {
         display: block;
     }
 }
+
 /* Blog Page */
 #blog {
     padding: 100px 20px;
