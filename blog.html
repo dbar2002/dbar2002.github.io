@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog | Duncan</title>
+    <title>Blog | Duncan's Portfolio</title>
     <link rel="stylesheet" href="style.css">
+    <script defer src="script.js"></script>
 </head>
 <body>
 
+    <!-- Navigation -->
     <header>
         <nav>
             <div class="logo">
@@ -16,40 +18,48 @@
             </div>
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
-                <li><a href="services.html">Services</a></li>
-                <li><a href="portfolio.html">Portfolio</a></li>
+                <li><a href="index.html#services">Services</a></li>
+                <li><a href="index.html#portfolio">Portfolio</a></li>
                 <li><a href="blog.html">Blog</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
             </ul>
+            <a href="index.html#contact" class="btn">Contact Me</a>
+            
+            <!-- Theme Toggle Dropdown -->
+            <select id="theme-toggle">
+                <option value="light">Light Mode</option>
+                <option value="dark">Dark Mode</option>
+                <option value="system">System</option>
+            </select>
+
+            <div class="hamburger">&#9776;</div>
         </nav>
     </header>
 
+    <!-- Blog Section -->
     <section id="blog" class="fade-in">
-        <h2>My Blog</h2>
-        <p>Sharing knowledge about web development, JavaScript, and React.</p>
-
+        <h1>My Blog</h1>
+        <p>Welcome to my latest blog posts.</p>
         <div class="blog-container">
             <div class="blog-card">
-                <img src="assets/blog1.jpg" alt="How to Build a Next.js Website">
-                <h3>How to Build a Next.js Website</h3>
-                <p>Learn how to create a fully functional website using Next.js, React, and modern web technologies...</p>
-                <a href="blog-post-nextjs.html" class="btn-outline">Read More</a>
+                <img src="blog1.jpg" alt="Blog Post 1">
+                <h3>Latest Web Development Trends</h3>
+                <p>Stay up to date with the latest web technologies.</p>
+                <a href="index.html#portfolio" class="btn">Back to Portfolio</a>
             </div>
-
             <div class="blog-card">
-                <img src="assets/blog2.jpg" alt="JavaScript Tips">
-                <h3>JavaScript Tips for Beginners</h3>
-                <p>Discover some essential JavaScript techniques to improve your coding skills and write better code...</p>
-                <a href="blog-post-js-tips.html" class="btn-outline">Read More</a>
-            </div>
-
-            <div class="blog-card">
-                <img src="assets/blog3.jpg" alt="React Best Practices">
-                <h3>React Best Practices</h3>
-                <p>Improve your React development workflow with these best practices, tips, and coding standards...</p>
-                <a href="blog-post-react.html" class="btn-outline">Read More</a>
+                <img src="blog2.jpg" alt="Blog Post 2">
+                <h3>React vs Vue: Which One to Choose?</h3>
+                <p>A comparison between two popular frontend frameworks.</p>
+                <a href="index.html#services" class="btn">Back to Services</a>
             </div>
         </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="fade-in">
+        <h2>Contact</h2>
+        <p>Email: contact@example.com</p>
     </section>
 
 </body>

@@ -1,6 +1,33 @@
 /* Import Google Font */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
+/* Default (Light Mode) Variables */
+:root {
+    --bg-color: white;
+    --text-color: black;
+    --accent-color: #10001f;
+    --btn-bg: gold;
+    --btn-text: black;
+    --nav-bg: rgba(255, 255, 255, 0.9);
+    --nav-text: black;
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+    --bg-color: #10001f;
+    --text-color: white;
+    --accent-color: gold;
+    --btn-bg: gold;
+    --btn-text: #10001f;
+    --nav-bg: rgba(16, 0, 31, 0.9);
+    --nav-text: white;
+}
+
+/* System Mode */
+[data-theme="system"] {
+    color-scheme: light dark;
+}
+
 /* General Styles */
 html {
     scroll-behavior: smooth;
@@ -9,9 +36,10 @@ html {
 body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background-color: #000;
-    color: white;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     text-align: center;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Fade-in Animation */
@@ -31,10 +59,11 @@ header {
     position: fixed;
     width: 100%;
     top: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: var(--nav-bg);
     backdrop-filter: blur(10px);
     padding: 15px 0;
     z-index: 1000;
+    transition: background 0.3s ease;
 }
 
 nav {
@@ -50,7 +79,7 @@ nav {
     align-items: center;
     font-size: 22px;
     font-weight: bold;
-    color: cyan;
+    color: var(--accent-color);
 }
 
 .logo img {
@@ -69,7 +98,7 @@ nav {
 }
 
 .nav-links a {
-    color: white;
+    color: var(--nav-text);
     text-decoration: none;
     font-size: 18px;
     font-weight: 500;
@@ -78,34 +107,67 @@ nav {
 }
 
 .nav-links a:hover {
-    color: cyan;
+    color: var(--accent-color);
 }
 
-.hamburger {
-    display: none;
-    font-size: 28px;
+/* Mobile Menu */
+@media screen and (max-width: 768px) {
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        right: 0;
+        background: var(--nav-bg);
+        width: 100%;
+        text-align: center;
+        padding: 20px;
+        transition: background 0.3s ease;
+    }
+
+    .nav-links.show {
+        display: flex;
+    }
+
+    .hamburger {
+        display: block;
+        font-size: 28px;
+        cursor: pointer;
+        color: var(--text-color);
+    }
+}
+
+/* Theme Toggle Dropdown */
+#theme-toggle {
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    background: var(--btn-bg);
+    color: var(--btn-text);
+    border: none;
     cursor: pointer;
-    color: white;
 }
 
 /* BUTTON STYLING */
 .btn {
-    background: cyan;
+    background: var(--btn-bg);
     padding: 12px 20px;
-    color: black;
+    color: var(--btn-text);
     font-weight: bold;
     border-radius: 5px;
     text-decoration: none;
     font-weight: 600;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 .btn-outline {
-    border: 2px solid cyan;
+    border: 2px solid var(--btn-bg);
     padding: 10px 18px;
-    color: cyan;
+    color: var(--btn-bg);
     text-decoration: none;
     border-radius: 5px;
     font-weight: 600;
+    transition: border-color 0.3s ease, color 0.3s ease;
 }
 
 /* HERO SECTION */
@@ -119,10 +181,10 @@ nav {
 
 h1 {
     font-size: 3.5em;
-    background: linear-gradient(45deg, cyan, blue, purple);
-    background-clip: text; /* Standard property */
-    -webkit-background-clip: text; /* Webkit-specific */
-    -moz-background-clip: text; /* Mozilla-specific */
+    background: linear-gradient(45deg, gold, orange, purple);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -moz-background-clip: text;
     color: transparent;
     font-weight: 700;
 }
@@ -136,7 +198,7 @@ p {
 #services {
     padding: 100px 20px;
     text-align: center;
-    background: #111;
+    background: var(--bg-color);
 }
 
 .services-container {
@@ -147,7 +209,7 @@ p {
 }
 
 .service-card {
-    background: #222;
+    background: var(--accent-color);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
@@ -166,12 +228,12 @@ p {
 
 .service-card h3 {
     font-size: 1.5em;
-    color: cyan;
+    color: var(--btn-bg);
 }
 
 .service-card p {
     font-size: 1.1em;
-    color: #ccc;
+    color: var(--text-color);
 }
 
 /* Sections */
@@ -181,34 +243,11 @@ section {
     font-weight: 400;
 }
 
-/* Mobile Responsive */
-@media screen and (max-width: 768px) {
-    .nav-links {
-        display: none;
-        flex-direction: column;
-        position: absolute;
-        top: 60px;
-        right: 0;
-        background: rgba(0, 0, 0, 0.9);
-        width: 100%;
-        text-align: center;
-        padding: 20px;
-    }
-
-    .nav-links.show {
-        display: flex;
-    }
-
-    .hamburger {
-        display: block;
-    }
-}
-
 /* Blog Page */
 #blog {
     padding: 100px 20px;
     text-align: center;
-    background: #111;
+    background: var(--bg-color);
 }
 
 .blog-container {
@@ -219,7 +258,7 @@ section {
 }
 
 .blog-card {
-    background: #222;
+    background: var(--accent-color);
     padding: 20px;
     border-radius: 10px;
     text-align: center;
@@ -239,12 +278,12 @@ section {
 
 .blog-card h3 {
     font-size: 1.5em;
-    color: cyan;
+    color: var(--btn-bg);
 }
 
 .blog-card p {
     font-size: 1.1em;
-    color: #ccc;
+    color: var(--text-color);
 }
 
 .blog-post {
@@ -256,7 +295,7 @@ section {
 
 .blog-post h2 {
     font-size: 2.5em;
-    color: cyan;
+    color: var(--btn-bg);
 }
 
 .blog-post .post-date {

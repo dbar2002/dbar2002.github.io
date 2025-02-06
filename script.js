@@ -32,4 +32,35 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("scroll", fadeInOnScroll);
     fadeInOnScroll();
+
+    // Theme Toggle Functionality
+    const themeToggle = document.getElementById("theme-toggle");
+    const root = document.documentElement;
+
+    function setTheme(theme) {
+        localStorage.setItem("theme", theme);
+        root.setAttribute("data-theme", theme);
+    }
+
+    function loadTheme() {
+        const savedTheme = localStorage.getItem("theme");
+        
+        if (savedTheme) {
+            root.setAttribute("data-theme", savedTheme);
+            themeToggle.value = savedTheme;
+        } else {
+            // If no theme is saved, use system preference
+            const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            const defaultTheme = systemPrefersDark ? "dark" : "light";
+            setTheme(defaultTheme);
+            themeToggle.value = defaultTheme;
+        }
+    }
+
+    themeToggle.addEventListener("change", function () {
+        const selectedTheme = themeToggle.value;
+        setTheme(selectedTheme);
+    });
+
+    loadTheme();
 });
