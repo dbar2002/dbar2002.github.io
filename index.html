@@ -65,10 +65,37 @@
     </section>
 
     <!-- Contact Section -->
-    <section id="contact" class="fade-in">
-        <h2>Contact</h2>
-        <p>Email: contact@example.com</p>
-    </section>
+<section id="contact" class="fade-in">
+    <h2>Contact Me</h2>
+    <p>Have a project in mind? Let’s talk!</p>
+
+    <!-- Contact Form -->
+    <form id="contact-form" action="https://formspree.io/f/{your-form-id}" method="POST">
+        <div class="form-group">
+            <input type="text" name="name" placeholder="Your Name" required>
+        </div>
+        <div class="form-group">
+            <input type="email" name="email" placeholder="Your Email" required>
+        </div>
+        <div class="form-group">
+            <textarea name="message" placeholder="Your Message" rows="5" required></textarea>
+        </div>
+        <button type="submit" class="btn">Send Message</button>
+    </form>
+
+    <!-- Direct Email & Social Links -->
+    <div class="contact-info">
+        <p>Email: <a href="mailto:duncanbarnes02@gmail.com">duncanbarnes02@gmail.com</a></p>
+        <p>Phone: <a href="tel:+1234567890">+123 456 7890</a></p>
+    </div>
+
+    <div class="social-links">
+        <a href="https://github.com/dbar2002" target="_blank"><img src="github-icon.png" alt="GitHub"></a>
+        <a href="https://www.linkedin.com/in/duncanjbarnes/" target="_blank"><img src="linkedin-icon.png" alt="LinkedIn"></a>
+        <a href="https://twitter.com/yourusername" target="_blank"><img src="twitter-icon.png" alt="Twitter"></a>
+    </div>
+</section>
+
 
 </body>
 </html>
