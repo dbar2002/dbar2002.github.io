@@ -428,3 +428,77 @@ button:hover {
         height: 35px;
     }
 }
+.projects-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.project-card {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+}
+
+.project-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+
+.project-card p {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.project-card .btn-outline {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 12px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    color: #007bff;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s;
+}
+
+.project-card .btn-outline:hover {
+    background: #007bff;
+    color: white;
+}
+
+/* DARK MODE PROJECT CARD STYLES */
+[data-theme="dark"] .projects-container {
+    background: var(--bg-color);
+}
+
+[data-theme="dark"] .project-card {
+    background: #1e1e1e; /* Dark background for project cards */
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .project-card h3 {
+    color: gold;
+}
+
+[data-theme="dark"] .project-card p {
+    color: #ddd;
+}
+
+[data-theme="dark"] .project-card .btn-outline {
+    border-color: gold;
+    color: gold;
+}
+
+[data-theme="dark"] .project-card .btn-outline:hover {
+    background: gold;
+    color: #10001f;
+}

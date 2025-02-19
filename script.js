@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function setTheme(theme) {
         localStorage.setItem("theme", theme);
         root.setAttribute("data-theme", theme);
+        applyDarkModeStyles(theme);
     }
 
     function loadTheme() {
@@ -55,6 +56,21 @@ document.addEventListener("DOMContentLoaded", function () {
             setTheme(defaultTheme);
             themeToggle.value = defaultTheme;
         }
+
+        applyDarkModeStyles(themeToggle.value);
+    }
+
+    function applyDarkModeStyles(theme) {
+        const body = document.body;
+        const projectCards = document.querySelectorAll(".project-card");
+
+        if (theme === "dark") {
+            body.classList.add("dark-mode");
+            projectCards.forEach(card => card.classList.add("dark-card"));
+        } else {
+            body.classList.remove("dark-mode");
+            projectCards.forEach(card => card.classList.remove("dark-card"));
+        }
     }
 
     themeToggle.addEventListener("change", function () {
@@ -63,4 +79,33 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     loadTheme();
+
+    // Fetch and Display GitHub Projects
+    async function fetchGitHubProjects() {
+        const username = "dbar2002"; // Replace with your GitHub username
+        const reposContainer = document.getElementById("github-projects");
+
+        try {
+            const response = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=6`);
+            const repos = await response.json();
+
+            reposContainer.innerHTML = repos
+                .map(repo => `
+                    <div class="project-card">
+                        <h3>${repo.name}</h3>
+                        <p>${repo.description || "No description available."}</p>
+                        <a href="${repo.html_url}" target="_blank" class="btn-outline">View Project</a>
+                    </div>
+                `)
+                .join("");
+
+            // Apply dark mode styling after adding projects
+            applyDarkModeStyles(themeToggle.value);
+        } catch (error) {
+            reposContainer.innerHTML = `<p>Error loading projects. Please try again later.</p>`;
+            console.error("GitHub API Error:", error);
+        }
+    }
+
+    fetchGitHubProjects();
 });
