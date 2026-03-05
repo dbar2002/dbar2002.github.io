@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if you ever add packages)
+node_modules/
+
+# System
+Thumbs.db
