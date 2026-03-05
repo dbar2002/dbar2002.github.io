@@ -1,16 +1,7 @@
 # Duncan Barnes — Portfolio
 
-Retro-futuristic developer portfolio with purple + gold cyberpunk aesthetic.
+Personal portfolio site showcasing my work, skills, and experience as a software engineer.
 
-## Files
+**Live site:** [dbar2002.github.io](https://dbar2002.github.io)
 
-- `index.html` — Main page (Hero, About, Services, Tech Stack, Portfolio, Contact)
-- `blog.html` — Blog listing
-- `style.css` — Styles with dark/light theme, scanlines, grid bg, glow effects
-- `script.js` — Theme toggle, scroll animations, GitHub API, counters, active nav
-
-## Setup
-
-1. Replace `{your-form-id}` in the contact form with your Formspree ID
-2. Add `assets/resume.pdf`
-3. Deploy to GitHub Pages, Vercel, or Netlify
+**Built with:** HTML · CSS · JavaScript
