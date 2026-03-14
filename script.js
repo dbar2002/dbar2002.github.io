@@ -1,5 +1,27 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+    // ---- Page Loader ----
+    const loader = document.getElementById("page-loader");
+    if (loader) {
+        window.addEventListener("load", () => {
+            setTimeout(() => loader.classList.add("hidden"), 400);
+        });
+        // Fallback: hide after 3s even if load event doesn't fire
+        setTimeout(() => loader.classList.add("hidden"), 3000);
+    }
+
+    // ---- Back to Top Button ----
+    const backToTop = document.getElementById("back-to-top");
+    if (backToTop) {
+        window.addEventListener("scroll", () => {
+            backToTop.classList.toggle("visible", window.scrollY > 500);
+        }, { passive: true });
+
+        backToTop.addEventListener("click", () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+    }
+
     // ---- Smooth Scroll (only for same-page anchors) ----
     const hamburger = document.querySelector(".hamburger");
     const navLinks = document.querySelector(".nav-links");
@@ -46,30 +68,59 @@ document.addEventListener("DOMContentLoaded", () => {
     }, { threshold: 0.1, rootMargin: "0px 0px -30px 0px" });
     reveals.forEach(el => revealObs.observe(el));
 
-    // ---- Theme Toggle ----
-    const toggle = document.getElementById("theme-toggle");
+    // ---- Theme Dropdown ----
+    const themeToggle = document.getElementById("theme-toggle");
+    const themeMenu = document.getElementById("theme-menu");
     const root = document.documentElement;
 
-    function getTheme() {
-        return localStorage.getItem("theme") ||
-            (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    function getSystemTheme() {
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
     }
 
-    function applyTheme(t) {
-        root.setAttribute("data-theme", t);
-        localStorage.setItem("theme", t);
+    function applyTheme(mode) {
+        const resolved = mode === "system" ? getSystemTheme() : mode;
+        root.setAttribute("data-theme", resolved);
+        root.setAttribute("data-theme-mode", mode);
+        localStorage.setItem("theme-mode", mode);
+
+        // Update active state in menu
+        if (themeMenu) {
+            themeMenu.querySelectorAll("button").forEach(btn => {
+                btn.classList.toggle("active", btn.dataset.themeChoice === mode);
+            });
+        }
     }
 
-    applyTheme(getTheme());
+    // Initialize
+    applyTheme(localStorage.getItem("theme-mode") || "system");
 
-    if (toggle) {
-        toggle.addEventListener("click", () => {
-            applyTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    // Toggle dropdown
+    if (themeToggle && themeMenu) {
+        themeToggle.addEventListener("click", () => {
+            themeMenu.classList.toggle("open");
+        });
+
+        // Handle menu choices
+        themeMenu.querySelectorAll("button").forEach(btn => {
+            btn.addEventListener("click", () => {
+                applyTheme(btn.dataset.themeChoice);
+                themeMenu.classList.remove("open");
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", (e) => {
+            if (!e.target.closest(".theme-dropdown")) {
+                themeMenu.classList.remove("open");
+            }
         });
     }
 
-    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
-        if (!localStorage.getItem("theme")) applyTheme(e.matches ? "dark" : "light");
+    // Listen for system theme changes (only matters when mode is "system")
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+        if (localStorage.getItem("theme-mode") === "system") {
+            applyTheme("system");
+        }
     });
 
     // ---- Animated Counters ----
@@ -174,6 +225,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     loadProjects();
+
+    // ---- Contact Form Submission ----
+    const contactForm = document.getElementById("contact-form");
+    if (contactForm) {
+        contactForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById("submit-btn");
+            const btnText = btn.querySelector(".btn-text");
+            const btnLoading = btn.querySelector(".btn-loading");
+            const status = document.getElementById("form-status");
+
+            // Disable button & show loading
+            btn.disabled = true;
+            btnText.style.display = "none";
+            btnLoading.style.display = "inline";
+            status.style.display = "none";
+
+            try {
+                const res = await fetch(contactForm.action, {
+                    method: "POST",
+                    body: new FormData(contactForm),
+                    headers: { Accept: "application/json" }
+                });
+
+                if (res.ok) {
+                    status.textContent = "Message sent! I'll get back to you soon.";
+                    status.className = "form-status success";
+                    status.style.display = "block";
+                    contactForm.reset();
+                } else {
+                    throw new Error("Submit failed");
+                }
+            } catch (err) {
+                status.textContent = "Something went wrong. Try emailing me directly.";
+                status.className = "form-status error";
+                status.style.display = "block";
+            } finally {
+                btn.disabled = false;
+                btnText.style.display = "inline";
+                btnLoading.style.display = "none";
+            }
+        });
+    }
 
     // ---- Active Nav Tracking ----
     const sections = document.querySelectorAll("section[id]");
