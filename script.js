@@ -303,4 +303,14 @@ document.addEventListener("DOMContentLoaded", () => {
     // Use passive scroll listener — cheap since we're only reading offsetTop
     window.addEventListener("scroll", updateActiveNav, { passive: true });
     updateActiveNav(); // set initial state
+
+    // ---- Anti-obfuscation email render ----
+    const emailEl = document.getElementById("contact-email");
+    if (emailEl) {
+        const user = "duncanbarnes02";
+        const domain = "gmail.com";
+        emailEl.href = "mailto:" + user + "@" + domain;
+        emailEl.textContent = user + "@" + domain;
+    }
+
 });
