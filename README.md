@@ -2,6 +2,6 @@
 
 Personal portfolio site showcasing my work, skills, and experience as a software engineer.
 
-**Live site:** [dbar2002.github.io](https://dbar2002.github.io)
+**Live site:** [duncanbarnes.dev](https://duncanbarnes.dev/)
 
 **Built with:** HTML · CSS · JavaScript
