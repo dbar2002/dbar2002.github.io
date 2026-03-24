@@ -62,6 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 entry.target.classList.add("visible");
+                // Free GPU memory after animation completes
+                setTimeout(() => {
+                    entry.target.style.willChange = "auto";
+                }, 800);
                 revealObs.unobserve(entry.target);
             }
         });
@@ -79,6 +83,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function applyTheme(mode) {
         const resolved = mode === "system" ? getSystemTheme() : mode;
+
+        // Only animate if theme is actually changing
+        const currentTheme = root.getAttribute("data-theme");
+        if (currentTheme && currentTheme !== resolved) {
+            document.body.classList.add("theme-transitioning");
+            setTimeout(() => document.body.classList.remove("theme-transitioning"), 500);
+        }
+
         root.setAttribute("data-theme", resolved);
         root.setAttribute("data-theme-mode", mode);
         localStorage.setItem("theme-mode", mode);
@@ -273,15 +285,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const sections = document.querySelectorAll("section[id]");
     const navItems = document.querySelectorAll(".nav-links a");
 
-    const secObs = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const id = entry.target.id;
-                navItems.forEach(a => {
-                    a.classList.toggle("active", a.getAttribute("href") === `#${id}`);
-                });
+    function updateActiveNav() {
+        const scrollY = window.scrollY + 120; // offset for fixed header + buffer
+        let currentId = "";
+
+        sections.forEach(section => {
+            if (section.offsetTop <= scrollY) {
+                currentId = section.id;
             }
         });
-    }, { threshold: 0.25, rootMargin: "-80px 0px -50% 0px" });
-    sections.forEach(s => secObs.observe(s));
+
+        navItems.forEach(a => {
+            a.classList.toggle("active", a.getAttribute("href") === `#${currentId}`);
+        });
+    }
+
+    // Use passive scroll listener — cheap since we're only reading offsetTop
+    window.addEventListener("scroll", updateActiveNav, { passive: true });
+    updateActiveNav(); // set initial state
 });
