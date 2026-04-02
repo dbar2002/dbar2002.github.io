@@ -82,8 +82,7 @@
                 <div class="about-left">
                     <div class="headshot-wrapper reveal">
                         <div class="headshot-placeholder">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                            <span>Your photo here</span>
+                            <img src="assets/photos/headshot.JPG" alt="Duncan Barnes - Headshot" class="headshot-img">
                         </div>
                     </div>
                     <div class="about-text reveal">
@@ -318,6 +317,54 @@
             <div class="section-tag reveal">&lt;/contact&gt;</div>
         </div>
     </section>
+
+    <!-- AI Chatbot -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-label" id="chatbot-label">
+            <span>Chat with me</span>
+            <button class="chatbot-label-close" id="chatbot-label-close" aria-label="Dismiss">&times;</button>
+        </div>
+        <button id="chatbot-toggle" class="chatbot-toggle" aria-label="Chat with Duncan">
+            <svg class="chatbot-icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg class="chatbot-icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span class="chatbot-badge">1</span>
+            <span class="chatbot-pulse"></span>
+        </button>
+        <div id="chatbot-panel" class="chatbot-panel">
+            <div class="chatbot-header">
+                <div class="chatbot-header-info">
+                    <div class="chatbot-avatar-wrapper">
+                        <span class="chatbot-avatar">&lt;D/&gt;</span>
+                        <span class="chatbot-online-dot"></span>
+                    </div>
+                    <div>
+                        <div class="chatbot-name">Chat with Duncan</div>
+                        <div class="chatbot-status"><span class="chatbot-status-dot"></span>AI-powered &middot; Online now</div>
+                    </div>
+                </div>
+                <button id="chatbot-close" class="chatbot-close-btn" aria-label="Close chat">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div id="chatbot-messages" class="chatbot-messages">
+                <div class="chat-msg bot">
+                    <div class="chat-bubble">Hey! I'm Duncan — well, an AI version of me. Ask me about my skills, experience, projects, or whatever you'd like to know. I'm here to chat!</div>
+                </div>
+            </div>
+            <div class="chatbot-suggestions" id="chatbot-suggestions">
+                <button class="suggestion-chip" data-msg="What are your main skills?">Your skills</button>
+                <button class="suggestion-chip" data-msg="Tell me about your work experience">Your experience</button>
+                <button class="suggestion-chip" data-msg="What projects have you worked on?">Your projects</button>
+                <button class="suggestion-chip" data-msg="What's the best way to reach you?">Contact you</button>
+            </div>
+            <div class="chatbot-input-area">
+                <input type="text" id="chatbot-input" class="chatbot-input" placeholder="Ask me anything..." autocomplete="off">
+                <button id="chatbot-send" class="chatbot-send" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Back to Top -->
     <button id="back-to-top" class="back-to-top" aria-label="Back to top">

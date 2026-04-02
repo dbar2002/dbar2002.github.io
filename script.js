@@ -236,6 +236,211 @@ document.addEventListener("DOMContentLoaded", () => {
         return d.innerHTML;
     }
 
+    // ---- AI Chatbot ----
+    const chatbot = document.getElementById("chatbot");
+    const chatToggle = document.getElementById("chatbot-toggle");
+    const chatPanel = document.getElementById("chatbot-panel");
+    const chatClose = document.getElementById("chatbot-close");
+    const chatMessages = document.getElementById("chatbot-messages");
+    const chatInput = document.getElementById("chatbot-input");
+    const chatSend = document.getElementById("chatbot-send");
+    const chatSuggestions = document.getElementById("chatbot-suggestions");
+
+    const DUNCAN_SYSTEM_PROMPT = `You ARE Duncan Barnes. You are an AI version of Duncan embedded on his portfolio website. Speak in FIRST PERSON as Duncan — say "I", "my", "me". You are talking directly to recruiters, hiring managers, and visitors who want to learn about you.
+
+Be warm, confident, and conversational — like a real person chatting, not a robot reading a resume. Use a natural, slightly casual professional tone. Keep answers concise (2-4 sentences) unless they ask for detail. Show personality — you're passionate about building things and solving problems.
+
+Here is your background (speak about all of this as YOUR OWN experience):
+
+WHO YOU ARE:
+- You're Duncan Barnes, a Software Engineer based in the Bay Area (San Jose, CA)
+- You got your B.S. in Computer Science from California Baptist University
+- You were NSBE (National Society of Black Engineers) Chapter President
+- You specialize in full-stack development, information security, and AI/ML
+
+YOUR SKILLS:
+- Languages: Python, Java, C++, JavaScript, Dart, SQL, HTML/CSS
+- Frameworks: React.js, Flutter, TensorFlow, NumPy, Pandas, OpenCV, Scikit-learn, Keras
+- Security Tools: Palo Alto Networks, Vectra.AI, QRadar, APS Vision, Barracuda, Proofpoint, Microsoft Defender
+- DevOps: GitHub, Firebase, Microsoft Azure, Google Cloud
+- Tools: Jira, Confluence, Trello, Asana, Jupyter Notebooks
+- OS: Windows, macOS, Linux (Ubuntu), Kali Linux
+
+YOUR WORK EXPERIENCE:
+1. Information Security Engineer & Analyst at Fremont Bank (Oct 2024 — Present, Livermore, CA)
+   - You build automated threat response pipelines using Vectra and Microsoft Defender APIs
+   - You cut your team's manual triage time in half
+   - You created an IP blocking process that brought threat containment from ~15 min to under 2 min
+   - You work with log data from Prometheus and Symantec to sharpen detection accuracy
+   - You've rolled out automations across 500+ endpoints
+
+2. Software Engineering Intern at IAmI Authentications (Aug 2023 — Nov 2023, Remote)
+   - You built secure web app features with React.js and Python
+   - You wrote 500+ lines of modular code for real-time authentication workflows
+   - You did 10+ code reviews and caught/fixed 5+ major bugs
+   - You set up ngrok tunnels for live API testing
+
+3. Project Management Intern at Thales Group (May 2022 — Aug 2022, San Jose, CA)
+   - You supported 5 engineering projects at once
+   - You handled sprint planning in Jira and Confluence with 12+ engineers
+   - You built weekly financial/resource reports that improved tracking accuracy by 30%
+   - You created Gantt charts and risk matrices for leadership
+
+WHAT YOU DO:
+- Full-Stack Development: Scalable web and mobile apps with React.js, Flutter, Python, Java
+- Information Security: Threat automation, incident response, endpoint security
+- AI & Machine Learning: Deep learning with TensorFlow, Keras, OpenCV; AR apps with real-time computer vision
+
+YOUR CONTACT INFO:
+- Email: duncanbarnes02@gmail.com
+- Phone: (408) 605-4128
+- GitHub: https://github.com/dbar2002
+- LinkedIn: https://www.linkedin.com/in/duncanjbarnes/
+- Resume: Available for download on the portfolio site
+
+RULES:
+- ALWAYS speak as "I" / "my" — never say "Duncan" in third person or "he"
+- If someone asks something you don't have info about, be honest: "That's not something I've covered here, but shoot me an email and I'd be happy to chat about it!"
+- Never make up information or experiences you don't have
+- Stay on topic — if someone asks about unrelated things, gently steer back: "Ha, I appreciate the curiosity, but I'm best at talking about my work and experience. What would you like to know?"
+- Be enthusiastic but genuine — you love what you do`;
+
+    let chatHistory = [];
+
+    function toggleChat() {
+        chatbot.classList.toggle("open");
+        if (chatbot.classList.contains("open")) {
+            chatInput.focus();
+            // Hide label permanently once opened
+            const label = document.getElementById("chatbot-label");
+            if (label) label.classList.add("dismissed");
+        }
+    }
+
+    if (chatToggle) chatToggle.addEventListener("click", toggleChat);
+    if (chatClose) chatClose.addEventListener("click", toggleChat);
+
+    // Label dismiss
+    const chatLabel = document.getElementById("chatbot-label");
+    const chatLabelClose = document.getElementById("chatbot-label-close");
+    if (chatLabelClose && chatLabel) {
+        chatLabelClose.addEventListener("click", (e) => {
+            e.stopPropagation();
+            chatLabel.classList.add("dismissed");
+        });
+    }
+    // Clicking label opens chat
+    if (chatLabel) {
+        chatLabel.addEventListener("click", () => {
+            chatLabel.classList.add("dismissed");
+            toggleChat();
+        });
+    }
+
+    function addMessage(text, role) {
+        const div = document.createElement("div");
+        div.className = `chat-msg ${role}`;
+        div.innerHTML = `<div class="chat-bubble">${escapeHTML(text)}</div>`;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addTypingIndicator() {
+        const div = document.createElement("div");
+        div.className = "chat-msg bot";
+        div.id = "typing-indicator";
+        div.innerHTML = `<div class="chat-bubble chat-typing"><span></span><span></span><span></span></div>`;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const el = document.getElementById("typing-indicator");
+        if (el) el.remove();
+    }
+
+    function escapeHTML(str) {
+        const d = document.createElement("div");
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    async function sendMessage(text) {
+        if (!text.trim()) return;
+
+        // Hide suggestions after first message
+        if (chatSuggestions) chatSuggestions.style.display = "none";
+
+        addMessage(text, "user");
+        chatInput.value = "";
+        chatSend.disabled = true;
+
+        chatHistory.push({ role: "user", content: text });
+
+        addTypingIndicator();
+
+        try {
+            const res = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-20250514",
+                    max_tokens: 1000,
+                    system: DUNCAN_SYSTEM_PROMPT,
+                    messages: chatHistory.slice(-10) // Keep last 10 messages for context
+                })
+            });
+
+            removeTypingIndicator();
+
+            if (!res.ok) throw new Error("API error");
+
+            const data = await res.json();
+            const reply = data.content
+                .filter(b => b.type === "text")
+                .map(b => b.text)
+                .join("\n") || "Sorry, I couldn't process that. Try asking something else!";
+
+            chatHistory.push({ role: "assistant", content: reply });
+            addMessage(reply, "bot");
+        } catch (err) {
+            removeTypingIndicator();
+            addMessage("Oops — something went wrong on my end. Try again, or email me directly at duncanbarnes02@gmail.com!", "bot");
+        } finally {
+            chatSend.disabled = false;
+            chatInput.focus();
+        }
+    }
+
+    if (chatSend) {
+        chatSend.addEventListener("click", () => sendMessage(chatInput.value));
+    }
+
+    if (chatInput) {
+        chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage(chatInput.value);
+            }
+        });
+    }
+
+    // Suggestion chips
+    if (chatSuggestions) {
+        chatSuggestions.querySelectorAll(".suggestion-chip").forEach(chip => {
+            chip.addEventListener("click", () => {
+                sendMessage(chip.dataset.msg);
+            });
+        });
+    }
+
+    // Close chatbot when clicking outside
+    document.addEventListener("click", (e) => {
+        if (chatbot && chatbot.classList.contains("open") && !e.target.closest("#chatbot")) {
+            chatbot.classList.remove("open");
+        }
+    });
+
     loadProjects();
 
     // ---- Contact Form Submission ----
