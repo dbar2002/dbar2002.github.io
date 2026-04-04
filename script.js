@@ -243,7 +243,49 @@ document.addEventListener("DOMContentLoaded", () => {
     const chatSend = document.getElementById("chatbot-send");
     const chatSuggestions = document.getElementById("chatbot-suggestions");
 
-    const DUNCAN_SYSTEM_PROMPT = `You ARE Duncan Barnes. You are an AI version of Duncan embedded on his portfolio website. Speak in FIRST PERSON as Duncan — say "I", "my", "me". You are talking directly to recruiters, hiring managers, and visitors who want to learn about you.
+    // Fetch GitHub repos and build system prompt dynamically
+    let DUNCAN_SYSTEM_PROMPT = "";
+
+    async function buildSystemPrompt() {
+        let projectsSection = "";
+        try {
+            const res = await fetch("https://api.github.com/users/dbar2002/repos?sort=updated&per_page=20");
+            if (res.ok) {
+                const repos = await res.json();
+                const nonForks = repos.filter(r => !r.fork);
+                const projectLines = nonForks
+                    .map(r => `- ${r.name}${r.description ? ': ' + r.description : ''} (${r.language || 'N/A'})${r.stargazers_count > 0 ? ' ⭐ ' + r.stargazers_count : ''} — ${r.html_url}`)
+                    .join('\n');
+                projectsSection = `\n\nYOUR GITHUB PROJECTS (these are real projects on your GitHub — talk about them confidently as your own work):\n${projectLines}\n\nWhen someone asks about your projects, reference these by name and describe what they do. If a repo name is self-explanatory, explain what it does based on the name, language, and description. Link to the GitHub URL when relevant.`;
+
+                // Add top 3 recent projects as suggestion chips
+                const top3 = nonForks.slice(0, 3);
+                if (top3.length && chatSuggestions) {
+                    const projectChips = top3.map(r => {
+                        const btn = document.createElement("button");
+                        btn.className = "suggestion-chip";
+                        btn.dataset.msg = `Tell me about your ${r.name} project`;
+                        btn.textContent = r.name;
+                        return btn;
+                    });
+
+                    // Add a label before the project chips
+                    const divider = document.createElement("div");
+                    divider.className = "suggestion-divider";
+                    divider.textContent = "Recent projects:";
+                    chatSuggestions.appendChild(divider);
+
+                    projectChips.forEach(chip => {
+                        chip.addEventListener("click", () => sendMessage(chip.dataset.msg));
+                        chatSuggestions.appendChild(chip);
+                    });
+                }
+            }
+        } catch (e) {
+            projectsSection = "\n\nNote: Couldn't load GitHub projects. If asked, direct people to https://github.com/dbar2002";
+        }
+
+        DUNCAN_SYSTEM_PROMPT = `You ARE Duncan Barnes. You are an AI version of Duncan embedded on his portfolio website. Speak in FIRST PERSON as Duncan — say "I", "my", "me". You are talking directly to recruiters, hiring managers, and visitors who want to learn about you.
 
 Be warm, confident, and conversational — like a real person chatting, not a robot reading a resume. Use a natural, slightly casual professional tone. Keep answers concise (2-4 sentences) unless they ask for detail. Show personality — you're passionate about building things and solving problems.
 
@@ -300,7 +342,11 @@ RULES:
 - If someone asks something you don't have info about, be honest: "That's not something I've covered here, but shoot me an email and I'd be happy to chat about it!"
 - Never make up information or experiences you don't have
 - Stay on topic — if someone asks about unrelated things, gently steer back: "Ha, I appreciate the curiosity, but I'm best at talking about my work and experience. What would you like to know?"
-- Be enthusiastic but genuine — you love what you do`;
+- Be enthusiastic but genuine — you love what you do` + projectsSection;
+    }
+
+    // Build the prompt on page load
+    buildSystemPrompt();
 
     let chatHistory = [];
 
