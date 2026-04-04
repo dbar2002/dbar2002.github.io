@@ -238,9 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // ---- AI Chatbot ----
     const chatbot = document.getElementById("chatbot");
-    const chatToggle = document.getElementById("chatbot-toggle");
-    const chatPanel = document.getElementById("chatbot-panel");
-    const chatClose = document.getElementById("chatbot-close");
     const chatMessages = document.getElementById("chatbot-messages");
     const chatInput = document.getElementById("chatbot-input");
     const chatSend = document.getElementById("chatbot-send");
@@ -307,35 +304,7 @@ RULES:
 
     let chatHistory = [];
 
-    function toggleChat() {
-        chatbot.classList.toggle("open");
-        if (chatbot.classList.contains("open")) {
-            chatInput.focus();
-            // Hide label permanently once opened
-            const label = document.getElementById("chatbot-label");
-            if (label) label.classList.add("dismissed");
-        }
-    }
-
-    if (chatToggle) chatToggle.addEventListener("click", toggleChat);
-    if (chatClose) chatClose.addEventListener("click", toggleChat);
-
-    // Label dismiss
-    const chatLabel = document.getElementById("chatbot-label");
-    const chatLabelClose = document.getElementById("chatbot-label-close");
-    if (chatLabelClose && chatLabel) {
-        chatLabelClose.addEventListener("click", (e) => {
-            e.stopPropagation();
-            chatLabel.classList.add("dismissed");
-        });
-    }
-    // Clicking label opens chat
-    if (chatLabel) {
-        chatLabel.addEventListener("click", () => {
-            chatLabel.classList.add("dismissed");
-            toggleChat();
-        });
-    }
+    // No toggle needed — chat is always visible in its section
 
     function addMessage(text, role) {
         const div = document.createElement("div");
@@ -380,14 +349,17 @@ RULES:
         addTypingIndicator();
 
         try {
-            const res = await fetch("https://api.anthropic.com/v1/messages", {
+            // Replace this URL with your Cloudflare Worker URL after deploying
+            const WORKER_URL = "https://duncan-proxy-chat.duncanbarnes02.workers.dev";
+
+            const res = await fetch(WORKER_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     model: "claude-sonnet-4-20250514",
                     max_tokens: 1000,
                     system: DUNCAN_SYSTEM_PROMPT,
-                    messages: chatHistory.slice(-10) // Keep last 10 messages for context
+                    messages: chatHistory.slice(-10)
                 })
             });
 
@@ -433,13 +405,6 @@ RULES:
             });
         });
     }
-
-    // Close chatbot when clicking outside
-    document.addEventListener("click", (e) => {
-        if (chatbot && chatbot.classList.contains("open") && !e.target.closest("#chatbot")) {
-            chatbot.classList.remove("open");
-        }
-    });
 
     loadProjects();
 
