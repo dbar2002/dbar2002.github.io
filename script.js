@@ -380,8 +380,30 @@ RULES:
         return d.innerHTML;
     }
 
+    // ---- Rate Limiting ----
+    const RATE_LIMIT = {
+        maxPerSession: 20,      // max messages per page visit
+        cooldownMs: 3000,       // 3 seconds between messages
+        sessionCount: 0,
+        lastSentAt: 0,
+    };
+
     async function sendMessage(text) {
         if (!text.trim()) return;
+
+        // Check session limit
+        if (RATE_LIMIT.sessionCount >= RATE_LIMIT.maxPerSession) {
+            addMessage("You've reached the message limit for this session. Feel free to email me at duncanbarnes02@gmail.com if you have more questions!", "bot");
+            return;
+        }
+
+        // Check cooldown
+        const now = Date.now();
+        if (now - RATE_LIMIT.lastSentAt < RATE_LIMIT.cooldownMs) {
+            return; // silently ignore rapid clicks
+        }
+        RATE_LIMIT.lastSentAt = now;
+        RATE_LIMIT.sessionCount++;
 
         // Hide suggestions after first message
         if (chatSuggestions) chatSuggestions.style.display = "none";
@@ -395,21 +417,25 @@ RULES:
         addTypingIndicator();
 
         try {
-            // Replace this URL with your Cloudflare Worker URL after deploying
             const WORKER_URL = "https://duncan-proxy-chat.duncanbarnes02.workers.dev";
 
             const res = await fetch(WORKER_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    model: "claude-sonnet-4-20250514",
-                    max_tokens: 1000,
+                    model: "claude-sonnet-5",
+                    max_tokens: 500,
                     system: DUNCAN_SYSTEM_PROMPT,
                     messages: chatHistory.slice(-10)
                 })
             });
 
             removeTypingIndicator();
+
+            if (res.status === 429) {
+                addMessage("I'm getting a lot of questions right now — try again in a minute!", "bot");
+                return;
+            }
 
             if (!res.ok) throw new Error("API error");
 
