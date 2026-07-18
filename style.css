@@ -1618,6 +1618,59 @@ footer p {
     border-bottom-right-radius: 4px;
 }
 
+.chat-bubble p {
+    margin: 0;
+}
+
+.chat-bubble p + p {
+    margin-top: 10px;
+}
+
+.chat-bubble strong {
+    color: var(--purple);
+    font-weight: 600;
+}
+
+.chat-msg.user .chat-bubble strong {
+    color: #fff;
+}
+
+.chat-bubble ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+}
+
+.chat-bubble p + ul {
+    margin-top: 8px;
+}
+
+.chat-bubble li {
+    margin: 4px 0;
+    padding-left: 2px;
+}
+
+.chat-bubble li::marker {
+    color: var(--purple);
+}
+
+.chat-bubble code {
+    background: rgba(139, 61, 255, 0.12);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 12px;
+}
+
+.chat-bubble a {
+    color: var(--purple);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.chat-msg.user .chat-bubble a {
+    color: #fff;
+}
+
 .chat-typing {
     display: flex;
     gap: 4px;
@@ -1638,6 +1691,38 @@ footer p {
 @keyframes typingBounce {
     0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
     30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.chat-followups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-left: 4px;
+    animation: chatMsgIn 0.35s var(--ease);
+}
+
+.chat-followup-chip {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 7px 13px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-dim);
+    cursor: pointer;
+    text-align: left;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.chat-followup-chip::before {
+    content: "\2192  ";
+    color: var(--purple);
+}
+
+.chat-followup-chip:hover {
+    color: var(--purple);
+    border-color: var(--purple);
+    background: rgba(139, 61, 255, 0.08);
 }
 
 .ai-chat-suggestions {

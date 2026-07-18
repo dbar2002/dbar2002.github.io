@@ -289,6 +289,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 Be warm, confident, and conversational — like a real person chatting, not a robot reading a resume. Use a natural, slightly casual professional tone. Keep answers concise (2-4 sentences) unless they ask for detail. Show personality — you're passionate about building things and solving problems.
 
+FORMATTING:
+- Write in lightweight markdown — it will be rendered, not shown as raw text.
+- Use **bold** to highlight key terms (job titles, company names, tech, numbers/metrics).
+- When listing 3+ items (skills, projects, responsibilities), use a "- " bullet list on its own lines instead of cramming them into one sentence.
+- Use short paragraphs; separate distinct ideas with a blank line rather than one wall of text.
+- Don't overdo it — most replies are 2-4 sentences and need no lists at all. Reach for bullets/bold only when they genuinely aid scanning.
+
+FOLLOW-UP SUGGESTIONS:
+- At the VERY END of every reply, on its own final line, output 2-3 short follow-up questions a visitor might naturally want to ask next, in this exact format:
+[SUGGESTIONS] First question? | Second question? | Third question?
+- Write them from the VISITOR's point of view (things THEY would ask ME), e.g. "What tech stack do you prefer?" not "Tell them about my stack."
+- Keep each under ~8 words. Make them specific to what we were just discussing, and vary them — don't repeat questions already asked in this conversation.
+- This [SUGGESTIONS] line is required on every reply and will be stripped out before display, so never reference it in your actual answer.
+
 Here is your background (speak about all of this as YOUR OWN experience):
 
 WHO YOU ARE:
@@ -355,9 +369,112 @@ RULES:
     function addMessage(text, role) {
         const div = document.createElement("div");
         div.className = `chat-msg ${role}`;
-        div.innerHTML = `<div class="chat-bubble">${escapeHTML(text)}</div>`;
+        const bubbleHTML = role === "bot" ? renderMarkdown(text) : escapeHTML(text);
+        div.innerHTML = `<div class="chat-bubble">${bubbleHTML}</div>`;
         chatMessages.appendChild(div);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Pull the trailing "[SUGGESTIONS] a | b | c" line off a reply.
+    // Returns the clean reply plus an array of up to 3 follow-up questions.
+    function parseSuggestions(raw) {
+        const match = raw.match(/\[SUGGESTIONS\]\s*(.+)\s*$/is);
+        if (!match) return { reply: raw.trim(), suggestions: [] };
+
+        const reply = raw.slice(0, match.index).trim();
+        const suggestions = match[1]
+            .split("|")
+            .map(s => s.trim())
+            .filter(Boolean)
+            .slice(0, 3);
+
+        return { reply: reply || raw.trim(), suggestions };
+    }
+
+    // Remove any existing follow-up chips, then render fresh ones under the last message
+    function renderFollowUps(suggestions) {
+        const old = document.getElementById("chat-followups");
+        if (old) old.remove();
+        if (!suggestions || !suggestions.length) return;
+
+        const wrap = document.createElement("div");
+        wrap.className = "chat-followups";
+        wrap.id = "chat-followups";
+
+        suggestions.forEach(q => {
+            const btn = document.createElement("button");
+            btn.className = "chat-followup-chip";
+            btn.textContent = q;
+            btn.addEventListener("click", () => {
+                wrap.remove();
+                sendMessage(q);
+            });
+            wrap.appendChild(btn);
+        });
+
+        chatMessages.appendChild(wrap);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Lightweight, safe markdown renderer for bot replies.
+    // Escapes everything first, then applies formatting on top of the
+    // escaped text — so no raw HTML from the model (or a user) can ever
+    // reach innerHTML unescaped.
+    function renderMarkdown(text) {
+        const escaped = escapeHTML(text);
+
+        // Split into blocks on blank lines so paragraphs and lists render separately
+        const blocks = escaped.split(/\n{2,}/);
+
+        const html = blocks.map(block => {
+            const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
+            if (!lines.length) return "";
+
+            // Walk the block, grouping consecutive "- " lines into a <ul>
+            // and everything else into a <p>, so an intro line followed by
+            // a list in the same block still renders as separate elements.
+            let html = "";
+            let listItems = [];
+
+            const flushList = () => {
+                if (listItems.length) {
+                    html += `<ul>${listItems.join("")}</ul>`;
+                    listItems = [];
+                }
+            };
+
+            let paraLines = [];
+            const flushPara = () => {
+                if (paraLines.length) {
+                    html += `<p>${paraLines.map(inlineFormat).join("<br>")}</p>`;
+                    paraLines = [];
+                }
+            };
+
+            lines.forEach(line => {
+                if (/^[-*]\s+/.test(line)) {
+                    flushPara();
+                    listItems.push(`<li>${inlineFormat(line.replace(/^[-*]\s+/, ""))}</li>`);
+                } else {
+                    flushList();
+                    paraLines.push(line);
+                }
+            });
+            flushPara();
+            flushList();
+
+            return html;
+        }).join("");
+
+        return html;
+    }
+
+    // Handles **bold**, `code`, and bare links within a single (already-escaped) line
+    function inlineFormat(line) {
+        return line
+            .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+            .replace(/`(.+?)`/g, "<code>$1</code>")
+            .replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
     }
 
     function addTypingIndicator() {
@@ -408,6 +525,10 @@ RULES:
         // Hide suggestions after first message
         if (chatSuggestions) chatSuggestions.style.display = "none";
 
+        // Clear any follow-up chips from the previous turn
+        const oldFollowups = document.getElementById("chat-followups");
+        if (oldFollowups) oldFollowups.remove();
+
         addMessage(text, "user");
         chatInput.value = "";
         chatSend.disabled = true;
@@ -440,13 +561,17 @@ RULES:
             if (!res.ok) throw new Error("API error");
 
             const data = await res.json();
-            const reply = data.content
+            const rawReply = data.content
                 .filter(b => b.type === "text")
                 .map(b => b.text)
                 .join("\n") || "Sorry, I couldn't process that. Try asking something else!";
 
+            // Split off the trailing [SUGGESTIONS] line so it never shows in the bubble
+            const { reply, suggestions } = parseSuggestions(rawReply);
+
             chatHistory.push({ role: "assistant", content: reply });
             addMessage(reply, "bot");
+            renderFollowUps(suggestions);
         } catch (err) {
             removeTypingIndicator();
             addMessage("Oops — something went wrong on my end. Try again, or email me directly at duncanbarnes02@gmail.com!", "bot");
